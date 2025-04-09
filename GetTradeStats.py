@@ -5,9 +5,9 @@ We need the following:
     standard deviation
 """
 
-
-def getAverage():
-    int result = 0;
+def getAveragePrice():
+    result = 0
     return result
 
 def getStandardDeviation():
+    pass
