@@ -22,7 +22,11 @@ Classes implemented:
 '''
 This is the class that handles the trader logic
 We need to implement our investment approach here
+
+Notes:
+    When placing an order, if there is bid qt 2, and 3, must check its price to place an order
 '''
+
 class Trader:
     
     def run(self, state: TradingState):
