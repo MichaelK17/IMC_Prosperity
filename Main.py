@@ -28,6 +28,65 @@ Notes:
 '''
 
 class Trader:
+    def run(self, state: TradingState):
+        print("traderData: " + state.traderData)
+        print("Observations: " + str(state.observations))
+        result = {}
+        
+        # Iterate over every product that has an order depth in the current state
+        for product, order_depth in state.order_depths.items():
+            orders: List[Order] = []
+            
+            # Check that we have level 1 data on both sides before calculating current mid price.
+            # We assume the best bid is the highest available bid and the best ask is the lowest available ask.
+            if order_depth.buy_orders and order_depth.sell_orders:
+                best_bid = max(order_depth.buy_orders.keys())
+                best_ask = min(order_depth.sell_orders.keys())
+                current_mid_price = (best_bid + best_ask) / 2
+            else:
+                # If one side is missing, we cannot compute a reliable mid price, so skip.
+                continue
+            
+            # Retrieve the average values (paste in from your calculation)
+            if product in AVERAGES:
+                avg_info = AVERAGES[product]
+                avg_price = avg_info["avg_mid_price"]
+                spread = avg_info["spread"]
+            else:
+                # If you don't have historical averages for a product, you might skip it.
+                continue
+            
+            # Determine if the current price is undervalued or overvalued.
+            # Here, the definition is:
+            # - Undervalued: current price < (avg_price - spread)
+            # - Overvalued: current price > (avg_price + spread)
+            if current_mid_price < (avg_price - spread):
+                # Under-valuation: we want to buy.
+                # For this example, we look at the sell side. We assume we can take the entire quantity
+                # available at the best ask price.
+                best_ask = min(order_depth.sell_orders.keys())
+                quantity_to_buy = -order_depth.sell_orders[best_ask]  # sell orders come in negative volumes
+                # Create buy order (positive quantity indicates a buy)
+                orders.append(Order(product, best_ask, quantity_to_buy))
+                
+            elif current_mid_price > (avg_price + spread):
+                # Over-valuation: we want to sell.
+                # Here, we look at the buy side and assume selling the available volume.
+                best_bid = max(order_depth.buy_orders.keys())
+                quantity_to_sell = order_depth.buy_orders[best_bid]
+                # Create sell order (negative quantity indicates a sell)
+                orders.append(Order(product, best_bid, -quantity_to_sell))
+            
+            # Add the orders for the product to the result dictionary
+            result[product] = orders
+        
+        # traderData can be used to serialize any state for the next call.
+        traderData = ""
+        # Conversions is set to 0 if there is no conversion request.
+        conversions = 0
+        
+        return result, conversions, traderData
+    
     
     def run(self, state: TradingState):
         print("traderData: " + state.traderData)
