@@ -6,9 +6,23 @@ import string
 Website: https://imc-prosperity.notion.site/Writing-an-Algorithm-in-Python-19ee8453a0938114a15eca1124bf28a1
 
 Description: This is a sample algorithm for the IMC Trading competition.
+Classes implemented:
+    Trader
+    TradingState
+    Trade
+    OrderDepth
+    ConversionObservation
+    Order
+    Listing
+    Observation
+    ProsperityEncoder
 
 """
 
+'''
+This is the class that handles the trader logic
+We need to implement our investment approach here
+'''
 class Trader:
     
     def run(self, state: TradingState):
@@ -111,5 +125,70 @@ class Trade:
     def __str__(self) -> str:
         return "(" + self.symbol + ", " + self.buyer + " << " + self.seller + ", " + str(self.price) + ", " + str(self.quantity) + ", " + str(self.timestamp) + ")"
 
+    # an another toString method 
     def __repr__(self) -> str:
         return "(" + self.symbol + ", " + self.buyer + " << " + self.seller + ", " + str(self.price) + ", " + str(self.quantity) + ", " + str(self.timestamp) + ")" + self.symbol + ", " + self.buyer + " << " + self.seller + ", " + str(self.price) + ", " + str(self.quantity) + ")"
+    
+'''
+This object contains the collection of all outstanding buy and sell orders, or “quotes” that were sent by the trading bots, for a certain symbol. 
+'''
+class OrderDepth:
+    def __init__(self):
+        self.buy_orders: Dict[int, int] = {}
+        self.sell_orders: Dict[int, int] = {}
+
+'''
+Observation details help to decide on eventual orders or conversion requests
+'''
+class ConversionObservation:
+
+    def __init__(self, bidPrice: float, askPrice: float, transportFees: float, exportTariff: float, importTariff: float, sugarPrice: float, sunlightIndex: float):
+        self.bidPrice = bidPrice
+        self.askPrice = askPrice
+        self.transportFees = transportFees
+        self.exportTariff = exportTariff
+        self.importTariff = importTariff
+        self.sugarPrice = sugarPrice
+        self.sunlightIndex = sunlightIndex
+
+'''
+This is a very important class that actually places an order
+
+'''
+Symbol = str
+
+class Order:
+    def __init__(self, symbol: Symbol, price: int, quantity: int) -> None:
+        self.symbol = symbol
+        self.price = price
+        self.quantity = quantity
+
+    def __str__(self) -> str:
+        return "(" + self.symbol + ", " + str(self.price) + ", " + str(self.quantity) + ")"
+
+    def __repr__(self) -> str:
+        return "(" + self.symbol + ", " + str(self.price) + ", " + str(self.quantity) + ")"
+    
+
+class Listing:
+
+    def __init__(self, symbol: Symbol, product: Product, denomination: Product):
+        self.symbol = symbol
+        self.product = product
+        self.denomination = denomination
+
+
+class Observation:
+
+    def __init__(self, plainValueObservations: Dict[Product, ObservationValue], conversionObservations: Dict[Product, ConversionObservation]) -> None:
+        self.plainValueObservations = plainValueObservations
+        self.conversionObservations = conversionObservations
+        
+    def __str__(self) -> str:
+        return "(plainValueObservations: " + jsonpickle.encode(self.plainValueObservations) + ", conversionObservations: " + jsonpickle.encode(self.conversionObservations) + ")"
+    
+
+class ProsperityEncoder(JSONEncoder):
+
+        def default(self, o):
+            return o.__dict__
