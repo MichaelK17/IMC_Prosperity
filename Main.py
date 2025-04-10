@@ -1,5 +1,6 @@
 from datamodel import OrderDepth, UserId, TradingState, Order
 from typing import List
+import pandas as pd
 import string
 
 """
@@ -26,9 +27,15 @@ We need to implement our investment approach here
 Notes:
     When placing an order, if there is bid qt 2, and 3, must check its price to place an order
 '''
+AVERAGES = {
+    "KELP": {"avg_mid_price": 2011.762, "avg_spread": 2.6922},
+    "RAINFOREST_RESIN": {"avg_mid_price": 10000.0035, "avg_spread": 6.7288},
+    "SQUID_INK": {"avg_mid_price": 2033.94805, "avg_spread": 2.7177}
+}
 
 class Trader:
     def run(self, state: TradingState):
+
         print("traderData: " + state.traderData)
         print("Observations: " + str(state.observations))
         result = {}
